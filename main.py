@@ -1,42 +1,69 @@
-from bs4 import BeautifulSoup
+# v0.1
+#
+# To do
+# Implememt config.ini containing URL of media categories
 
-#driver = webdriver.PhantomJS()
+# import moviepy
+import io
+import json
+from moviepy.editor import *
+#import moviepy.editor as mpy
 
+import requests
 
-#jw_morningworship_url = 'https://www.jw.org/en/library/videos/#en/categories/VODPgmEvtMorningWorship'
-#session = dryscrape.Session()
-#session.visit(jw_morningworship_url)
+def theme_page_download(url, html_output):
+  r = requests.get(url)
 
-#print(driver)
+  with open(html_output, 'wb') as f:
+    f.write(r.content)
 
-#html_text = requests.get(jw_morningworship_url).text
-#soup = BeautifulSoup(html_text, 'html.parser')
+def theme_page_extract(html_file):
+  with open(html_file, 'r') as f:
+    j = json.load(f)
 
-jw_morningworship = open("jw2.html", 'r')
-soup = BeautifulSoup(jw_morningworship, 'html.parser')
+    media_liste = []
 
-#print(soup.find_all(attrs={"id": "article"}))
-#print(soup.find_all("article"))
-#print(soup.body)
-#print(soup.body)
-#print(soup.body.findChildren("article", {"id": "article"}))
-#articles = soup.body.find_all("article", {"id": "article"})
+    for i in range(5):
+      title = j['category']['media'][i]['title']
+      media_url = j['category']['media'][i]['files'][0]['progressiveDownloadURL']
+      media_filename = media_url.split('/')[-1][:-4]
 
-#articles = soup.find("div", {"class": "synopsis lss desc showImgOverlay hasDuration jsLanguageAttributes dir-ltr lang-en lang-E"})
-#articles = soup.find("div", {"class": "synopsis"})
-#articles = soup.find_all('class="synopsis lss desc showImgOverlay hasDuration jsLanguageAttributes dir-ltr lang-en lang-E"')
-#articles = soup.find_all('div class')
+      media_liste.append([title, media_url, media_filename])
 
-#print(articles)
+    return media_liste
 
-#print(soup.find_all('a'))
-#print(articles.find())
+def mp4_download_write_and_convert(mp4_url, mp4_output):
+  s = requests.get(mp4_url)
 
-#print(soup.body.find(id="article"))
+  with open(mp4_output+".mp4", 'wb') as f:
+    f.write(s.content)
+    video = VideoFileClip(mp4_output+".mp4")
+    video.audio.write_audiofile(mp4_output+".mp3")
 
-# article_id="article"
-# contenu de a href balise
+def mp4_dowload_and_direct_convert(mp4_url, mp4_output):
+  t = requests.get(mp4_url)
 
-articles = soup.find("article", {"id": "article"})
-for a in articles.find_all('a', href=True):
-  print(a['href'])
+#  inmemoryfile = io.BytesIO(t.content)
+
+  #video = VideoFileClip(mp4_output+".mp4")
+  #video.audio.write_audiofile(mp4_output+".mp3")
+
+  video = mpy.VideoClip(t.content)
+  video.audio.write_audiofile(mp4_output+".mp3")
+
+def main():
+#  morning_worship_URL = 'https://b.jw-cdn.org/apis/mediator/v1/categories/E/VODPgmEvtMorningWorship'
+#  mp4_url="https://download-a.akamaihd.net/files/media_periodical/f7/jwbmw_E_201410_03_r240p.mp4"
+#  theme_page_download("filename.html")
+#  mp4_download_and_write_convert(mp4_url, "toto")
+#  mp4_dowload_and_direct_convert(mp4_url, "toto")
+
+  liste = theme_page_extract("filename.html")
+  for i in range((len(liste))):
+    print(liste[i][2])
+    mp4_download_write_and_convert(liste[i][1], liste[i][2])
+
+  
+
+if __name__ == "__main__":
+      main()

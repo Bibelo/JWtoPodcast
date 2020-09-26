@@ -1,0 +1,17 @@
+version: '3.4'
+
+services:
+  podcast:
+    image: httpd:latest
+    container_name: podcast
+    volumes:
+      - /var/www/podcast:/usr/local/apache2/htdocs
+    ports:
+      - 5001:80
+    restart: always
+  # END PROJECT
+
+networks:
+  default:
+    external:
+      name: config_default
