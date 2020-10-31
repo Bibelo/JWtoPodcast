@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" version="2.0">
+  <channel>
+    <title>Tibo JW Podcast</title>
+    <link>http://vps.tellnet.fr/</link>
+    <language>en-us</language>
+    <description>JW Media into podcast Radio! Morning Worship Edition</description>
+    <itunes:author>Tibo</itunes:author>
+    <itunes:summary>JW Medias into podcast Radio! Morning Worship Edition</itunes:summary>
+    <itunes:owner>
+        <itunes:name>Tibo</itunes:name>
+        <itunes:email>tellnet@tellnet.fr</itunes:email>
+    </itunes:owner>
+    <itunes:explicit>no</itunes:explicit>
+    <itunes:image href="http://vps.tellnet.fr/logo-morningworship.png" />
+    <itunes:category>Religion</itunes:category>
+
+    <item>
+    </item>
+  </channel>
+</rss>
