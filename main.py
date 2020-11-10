@@ -1,112 +1,107 @@
-# v0.1
-#
-# To do
-# Implememt config.ini containing URL of media categories
-
-#import moviepy
-#import io
-#import moviepy.editor as mpy
-#import xml.etree.ElementTree as ET
+#v0.9 Bibelo 10th of Nov, 2020
+# todo: move init global var to config.ini
 
 import datetime
-import os
 import hashlib
 import json
-from moviepy.editor import *
+import os
+import requests
+from configparser import ConfigParser
 from lxml import etree as ET
 
-import requests
+def init():
+  global ini_config_file, basis_xml_file, website_path, resources_path
+  ini_config_file = 'config.ini'
+  basis_xml_file = 'podcast_ref.xml'
+  website_path = '/var/www/podcast'
+  resources_path = 'resources'
 
-def theme_page_download(url, html_output):
+def theme_page_download(jw_url, podcast_html_file):
     # Download the page containing the index of all MP4 videos
-    new_index = requests.get(url)
+    print("Downloading the JW media index")
+    new_index = requests.get(jw_url)
     new_index_content = new_index.text
     new_hash = hashlib.sha256(new_index_content.encode('utf-8')).hexdigest()
 
     # Has a previous page ever been downloaded?
-    if os.path.exists(html_output):
-        previous_index = open(html_output, 'r')
+    if os.path.exists(podcast_html_file):
+        previous_index = open(podcast_html_file, 'r')
         previous_index_content = previous_index.read()
         previous_index.close()
         previous_hash = hashlib.sha256(previous_index_content.encode('utf-8')).hexdigest()
 
         # In this case, we compare the old index and the new index (with their hashes)
         if new_hash == previous_hash:
-            print("index has not changed")
+            print("JW media index has not been updated on jw.org")
             return
         else:
-            print("index has been updated")
-            previous_index_write = open(html_output, 'w')
+            print("JW media index has been updated on jw.org")
+            previous_index_write = open(podcast_html_file, 'w')
             previous_index_write.write(new_index_content)
             previous_index_write.close()
     else:
-        print("index did not exist and has been created")
-        new_file = open(html_output, 'w')
+        print("A local index did not exist and has been created")
+        new_file = open(podcast_html_file, 'w')
         new_file.write(new_index_content)
         new_file.close()
 
+def theme_page_extract(podcast_html_file):
+  with open(podcast_html_file, 'r') as f:
+    json_index = json.load(f)
 
-# def theme_page_download(url, html_output):
-#  r = requests.get(url)
+    podcast_fields = []
 
-#  with open(html_output, 'wb') as f:
-#    f.write(r.content)
-
-def theme_page_extract(html_input):
-  with open(html_input, 'r') as f:
-    j = json.load(f)
-
-    media_liste = []
-
-    for i in range(len(j['category']['media'])):
-      title = j['category']['media'][i]['title']
-      media_url = j['category']['media'][i]['files'][0]['progressiveDownloadURL']
+    for i in range(len(json_index['category']['media'])):
+      title = json_index['category']['media'][i]['title']
+      media_url = json_index['category']['media'][i]['files'][0]['progressiveDownloadURL']
       media_filename = media_url.split('/')[-1][:-4]
-      media_pubDate = j['category']['media'][i]['firstPublished']
-      media_thumbnail = j['category']['media'][i]['images']['sqr']['sm']
+      media_pubDate = json_index['category']['media'][i]['firstPublished']
+      # media_thumbnail = json_index['category']['media'][i]['images']['sqr']['sm']
 
-      media_liste.append([title, media_url, media_filename, media_pubDate, media_thumbnail])
+      # podcast_fields.append([title, media_url, media_filename, media_pubDate, media_thumbnail])
+      podcast_fields.append([title, media_url, media_filename, media_pubDate, None])
 
-    return media_liste
+    return podcast_fields
 
-# def mp4_download_write_and_convert(mp4_url, mp4_output):
-#   s = requests.get(mp4_url)
+def xml_write(xml_basis_file, podcast_fields, general_parameters, podcast_parameters):
+  general_title = general_parameters[0]
+  general_url = general_parameters[1]
+  general_description = general_parameters[2]
 
-#   with open(mp4_output+".mp4", 'wb') as f:
-#     f.write(s.content)
-#     video = VideoFileClip(mp4_output+".mp4")
-#     video.audio.write_audiofile(mp4_output+".mp3")
+  podcast_name = podcast_parameters[0]
+  podcast_file = podcast_parameters[1]
+  podcast_logo_filename = podcast_parameters[2]
 
-#   media_length = os.path.getsize(mp4_output+".mp3")
+  # Print the first episode title, to make sure it works
+  # print(podcast_fields[4])
 
-# #  print("Size (or Length) of file is : ", media_length)
-
-#   return media_length
-
-# def mp4_dowload_and_direct_convert(mp4_url, mp4_output):
-# # Work In Progress: find a way to avoid saving the mp4
-#   t = requests.get(mp4_url)
-
-# #  inmemoryfile = io.BytesIO(t.content)
-
-#   #video = VideoFileClip(mp4_output+".mp4")
-#   #video.audio.write_audiofile(mp4_output+".mp3")
-
-#   video = mpy.VideoClip(t.content)
-#   video.audio.write_audiofile(mp4_output+".mp3")
-
-def xml_write(xml_basis_file, liste, xml_output_file):
-  print(liste[4])
   tree = ET.XMLParser(remove_blank_text=True)
   root = ET.parse(xml_basis_file, tree).getroot()
-  for i in range(len(liste)):
-    title = liste[i][0]
-    description = liste[i][0]
-    link = liste[i][1]
-    image_link = liste[i][4]
-    length = liste[i][5]
-    guid = liste[i][2]
-    media_date = datetime.datetime.strptime(liste[i][3], '%Y-%m-%dT%H:%M:%S.%fZ').strftime("%b %d, %Y")
+  
+  # <title> of the Podcast
+  root[0][0].text = general_title + " " + podcast_name
+  # <link> URL of the Podcast
+  root[0][1].text = general_url + podcast_file
+  # <description> of the Podcast
+  root[0][3].text = general_description + " " + podcast_name
+  # <image><url> URL of the image of the Podcast
+  root[0][4][0].text = general_url + podcast_logo_filename
+  # <image><title> Title of the logo
+  root[0][4][1].text = podcast_name
+  # <image><link> = URL of the Podcast
+  root[0][4][2].text = general_url + podcast_file
+
+  print("Generating XML for Podcast " + root[0][0].text)
+  print(root[0][1].text)
+  
+  for i in range(len(podcast_fields)):
+    title = podcast_fields[i][0]
+    description = podcast_fields[i][0]
+    link = podcast_fields[i][1]
+    image_link = podcast_fields[i][4]
+    length = podcast_fields[i][5]
+    guid = podcast_fields[i][2]
+    media_date = datetime.datetime.strptime(podcast_fields[i][3], '%Y-%m-%dT%H:%M:%S.%fZ').strftime("%b %d, %Y")
 
     item = ET.Element("item")
 
@@ -145,44 +140,52 @@ def xml_write(xml_basis_file, liste, xml_output_file):
       channel.append(item)
 
   tree = ET.ElementTree(root)
-  tree.write(xml_output_file, encoding='utf-8', pretty_print=True, xml_declaration=True)
+  tree.write(podcast_file, encoding='utf-8', pretty_print=True, xml_declaration=True)
 
-#  ET.dump(root)
+  # ET.dump(root)
 
 def main():
-  morning_worship_URL = 'https://b.jw-cdn.org/apis/mediator/v1/categories/E/VODPgmEvtMorningWorship'
-  morning_worship_file = morning_worship_URL.rsplit('/', 1)[-1]
-  morning_worship_name = 'podcast_mw.xml'
+  init()
 
-  theme_page_download(morning_worship_URL, morning_worship_file)
+  ini_config = ConfigParser()
+  ini_config.read(ini_config_file)
 
-#  open the previous URL with https://jsoneditoronline.org/
-#
-#  mp4_url="https://download-a.akamaihd.net/files/media_periodical/f7/jwbmw_E_201410_03_r240p.mp4"
-#  theme_page_download("filename.html")
-#  mp4_download_and_write_convert(mp4_url, "toto")
-#  mp4_dowload_and_direct_convert(mp4_url, "toto")
-# SAVE THIS PART IN GITLAB SNIPPETS
-# https://github.com/JennieJi/vsext-gitlab-snippets
+  general_title = ini_config['General']['general_title']
+  general_url = ini_config['General']['general_url']
+  general_description = ini_config['General']['general_description']
+  general_parameters = [general_title, general_url, general_description]
 
-  liste = theme_page_extract(morning_worship_file)
-#  print(liste[2])
-  for i in range((len(liste))):
-  #for i in range(2):
-    #media_length = mp4_download_write_and_convert(liste[i][1], liste[i][2])
-    #media_length = str(os.path.getsize(liste[i][2]+".mp3"))
+  for section in ini_config.sections():
+    if section == 'General':
+      continue
 
-    # the following is temporary: all mp4s need to be downloaded and converted to mp3s...
-    media_length = "1024"
-    # print(type(file_length))
-    liste[i].append(media_length)
-    #print(liste[i])
-  #xml_write("podcast2.xml", liste[i][0], liste[i][0], liste[i][1], liste[i][1], liste[i][4])
-  
-  xml_write("podcast_ref.xml", liste, morning_worship_name)
-#   xml_write("podcast_ref.xml", liste, "podcast.xml")
+    jw_url = ini_config[section]['jw_url']
+    podcast_name = ini_config[section]['podcast_name']
+    podcast_xml_file = ini_config[section]['podcast_file'] + ".xml"
+    podcast_html_file = ini_config[section]['podcast_file'] + ".html"
+    podcast_logo_filename = ini_config[section]['podcast_logo_filename']
 
-  os.system("mv " + morning_worship_name + " /var/www/podcast")
+    podcast_parameters = [podcast_name, podcast_xml_file, podcast_logo_filename]
+    #podcast_url.rsplit('/', 1)[-1]
+
+    print("For podcast " + podcast_name)
+
+    theme_page_download(jw_url, podcast_html_file)
+
+    # Extract the different fields from the index and put them in list
+    podcast_fields = theme_page_extract(podcast_html_file)
+
+    # here, we just add the length
+    for i in range((len(podcast_fields))):
+      media_length = "1024"
+      podcast_fields[i].append(media_length)
+
+    # Creation of the whole XML file!  
+    xml_write(basis_xml_file, podcast_fields, general_parameters, podcast_parameters)
+
+    print("Copying XML Podcast file and logo for " + podcast_name + "\n")
+    os.system("mv " + podcast_xml_file + " " + website_path)
+    os.system('cp ' + resources_path + "/" + podcast_logo_filename + " " + website_path)
 
 if __name__ == "__main__":
       main()
