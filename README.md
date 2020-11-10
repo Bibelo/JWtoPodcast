@@ -8,3 +8,10 @@ https://stackoverflow.com/questions/11892623/stringio-and-compatibility-with-wit
 
 
 #  open the previous URL with https://jsoneditoronline.org/
+
+# TODO
+
+- move init global var to config.ini
+- implement default_config.ini
+- do not copy files if index has not been changed
+- update README.md explaining how to create the podcast

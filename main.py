@@ -1,5 +1,5 @@
 #v0.9 Bibelo 10th of Nov, 2020
-# todo: move init global var to config.ini
+
 
 import datetime
 import hashlib
