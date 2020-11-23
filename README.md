@@ -1,4 +1,14 @@
-# Convert JW.ORG videos into an audio RSS Podcast
+# Convert JW.ORG medias into an audio RSS Podcast
+
+## Description
+
+There's a wonderful pool of spiritual resources on JW.ORG.
+
+This program makes it possible to follow them easily using the practical features of a podcast player.
+
+This will create a channel for each main page containing media resources on JW.ORG.
+
+
 
 https://stackoverflow.com/questions/18550127/how-to-do-virtual-file-processing
 note expliquant que si utilise une methode qui a besoin d'un filename, il faut utiliser tempfile
@@ -9,7 +19,7 @@ https://stackoverflow.com/questions/11892623/stringio-and-compatibility-with-wit
 
 #  open the previous URL with https://jsoneditoronline.org/
 
-# TODO
+## TODO
 
 - move init global var to config.ini
 - implement default_config.ini
