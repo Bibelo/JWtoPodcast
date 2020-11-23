@@ -20,7 +20,7 @@ The resulting URL will be `http(s)://<general_url>/<podcast_file>.xml`
 The XML file being locally copied to `<general_local_path>`
 
 Add this URL to your podcast player.
-The podcast player will then read the MP4 video directly from JW.ORG as sounds.
+The podcast player will then reads the MP4 video directly from JW.ORG as audio. The lower quality (240p) is used, the size is almost the same as if it were pure audio (so it appeared useless to convert to audio).
 
 **Tested successfully with Podcast Republic**
 
