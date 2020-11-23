@@ -153,6 +153,7 @@ def main():
   general_title = ini_config['General']['general_title']
   general_url = ini_config['General']['general_url']
   general_description = ini_config['General']['general_description']
+  general_local_path = ini_config['General']['general_local_path']
   general_parameters = [general_title, general_url, general_description]
 
   for section in ini_config.sections():
@@ -166,7 +167,6 @@ def main():
     podcast_logo_filename = ini_config[section]['podcast_logo_filename']
 
     podcast_parameters = [podcast_name, podcast_xml_file, podcast_logo_filename]
-    #podcast_url.rsplit('/', 1)[-1]
 
     print("For podcast " + podcast_name)
 
@@ -183,9 +183,10 @@ def main():
     # Creation of the whole XML file!  
     xml_write(basis_xml_file, podcast_fields, general_parameters, podcast_parameters)
 
-    print("Copying XML Podcast file and logo for " + podcast_name + "\n")
-    os.system("mv " + podcast_xml_file + " " + website_path)
-    os.system('cp ' + resources_path + "/" + podcast_logo_filename + " " + website_path)
+    print("Copying XML Podcast file and logo for " + podcast_name)
+    print("Copying to " + general_local_path + "\n")
+    os.system("mv " + podcast_xml_file + " " + general_local_path)
+    os.system('cp ' + resources_path + "/" + podcast_logo_filename + " " + general_local_path)
 
 if __name__ == "__main__":
       main()

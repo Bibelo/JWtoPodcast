@@ -3,21 +3,26 @@
 ## Description
 
 There's a wonderful pool of spiritual resources on JW.ORG.
-
 This program makes it possible to follow them easily using the practical features of a podcast player.
 
 This will create a channel for each main page containing media resources on JW.ORG.
 
+## Quick installation
 
+The file `default_config.ini` contains samples of the fields you need to add, especially the source for the medias.
 
-https://stackoverflow.com/questions/18550127/how-to-do-virtual-file-processing
-note expliquant que si utilise une methode qui a besoin d'un filename, il faut utiliser tempfile
-Redirige vers :
-https://stackoverflow.com/questions/11892623/stringio-and-compatibility-with-with-statement-context-manager/11892712#11892712
+- rename `default_config.ini` to `config.ini`
+- run main.py (python3)
+```python3 main.py```
+- you can add this line to your crontab to check for updates every week for example
 
+The resulting URL will be `general_url`/`podcast_file`.xml
+The XML file being locally copied to `general_local_path`
 
+Add this URL to your podcast player.
+The podcast player will then read the MP4 video directly from JW.ORG as sounds.
 
-#  open the previous URL with https://jsoneditoronline.org/
+**Tested successfully with Podcast Republic**
 
 ## TODO
 
