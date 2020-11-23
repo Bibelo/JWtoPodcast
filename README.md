@@ -13,7 +13,7 @@ The file `default_config.ini` contains samples of the fields you need to add, es
 
 - rename `default_config.ini` to `config.ini`
 - run main.py (python3)
-```python3 main.py```
+  - ```python3 main.py```
 - you can add this line to your crontab to check for updates every week for example
 
 The resulting URL will be `general_url`/`podcast_file`.xml
