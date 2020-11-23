@@ -35,9 +35,10 @@ To find new sources you'd like to add yourself, go to:
   - In Inspect, click on the Network tab
   - Reload the page
   - Find a `b.jw-cdn.org` page starting with `VOD` (hover over the filename to see the full URL of the resource)
-    - Right-click, the `Copy / Copy link address`
+    - Right-click then `Copy / Copy link address`
   - Click on that resource: it should contain a `category` section, containing a `media` section.
   - The `media` section contains a list of resources, with items like `title`, `firstPublished`, etc.
+  - That's the page you want to add to `config.ini`, in the `jw_url` field
 
 ## TODO
 
