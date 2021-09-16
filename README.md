@@ -1,3 +1,5 @@
+[![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)](https://forthebadge.com)
+
 # Convert JW.ORG medias into an audio RSS Podcast
 
 ## Description
